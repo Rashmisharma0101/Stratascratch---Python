@@ -1,0 +1,23 @@
+1. Rank the top five customers by total purchase value. If multiple customers have the same total purchase value, 
+treat them as ties 
+and include all tied customers in the result. Display each customer's ID, total purchase value, and rank.
+Ensure that the ranking does not skip numbers due to ties (e.g., if two customers share rank 2,
+the next rank should be 3).
+
+1. customer_purchase['rank']= customer_purchase['total_purchase_value'].rank(method = 'dense', ascending = False)
+customer_purchase.loc[customer_purchase['rank'] <= 5].sort_values(by = 'rank')
+
+2. Calculate the average score for each project, but only include projects where more than one team member has provided a score.
+
+2.project_data['team_member_count'] = project_data.groupby('project_id')['team_member_id'].transform('count')
+filtered = project_data[project_data['team_member_count'] > 1]
+
+avg_score = filtered.groupby('project_id')['score'].mean().reset_index()
+
+3. Count the unique activity types for each user, ensuring users with no activities are also included.
+The output should show each user's ID and their activity type count, with zero for users who have no activities.
+
+values = activity_log.groupby('user_id')['activity_type'].nunique().reset_index(name = 'activity_count')
+merged = user_profiles.merge(values, on = 'user_id', how  = 'left')
+merged['activity_count'] = merged['activity_count'].fillna(0).astype(int)
+merged[['user_id','activity_count']]
