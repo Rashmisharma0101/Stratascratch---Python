@@ -4,3 +4,127 @@ Output the department, first name, and salary of employees along with the averag
 values = employee.groupby('department')['salary'].mean()
 employee['avg_dept_salary'] = employee['department'].map(values)
 employee[['department', 'first_name', 'salary', 'avg_dept_salary']]
+
+
+Count the number of unique users per day who logged in from either a mobile device or web. Output the date and the corresponding number of users.
+df = pd.concat([mobile_logs, web_logs], ignore_index = True, sort = False)
+df.groupby('log_date')['user_id'].nunique().reset_index()
+
+
+A movie theater has two tables: theater_availability which tracks which seats are available, 
+and theater_seatmap which defines the physical layout showing which seats are next to each other. 
+Consecutive seat numbers do not always indicate adjacent seats.
+Find all pairs of seats that are both adjacent to each other and available. 
+Output distinct pairs, where the lower seat number is in the first column.
+
+
+theater_availability_filtered = theater_availability[theater_availability['is_available'] == 1]
+merged = theater_availability_filtered.merge(theater_seatmap, on  = 'seat_number', how = 'inner')
+available_seats = set(avail['seat_number'])
+
+pairs = []
+
+for _, row in merged.iterrows():
+    seat = row['seat_number']
+    
+    if row['seat_left'] in available_seats:
+        pairs.append(tuple(sorted([seat, int(row['seat_left'])])))
+        
+    if row['seat_right'] in available_seats:
+        pairs.append(tuple(sorted([seat, int(row['seat_right'])])))
+
+
+Code explanation — line by line
+1️⃣ Create an empty list
+pairs = []
+
+
+This will store valid adjacent seat pairs
+
+Each item will be a tuple like (9, 10) or (10, 15)
+
+2️⃣ Loop through each row of the DataFrame
+for _, row in merged.iterrows():
+
+
+iterrows() returns:
+
+the row index (we don’t need it → _)
+
+the row data as a Series (row)
+
+We are checking each available seat one by one
+
+3️⃣ Get the current seat number
+seat = row['seat_number']
+
+
+This is the current seat
+
+Example: seat = 10
+
+4️⃣ Check if the left adjacent seat is also available
+if row['seat_left'] in available_seats:
+
+
+row['seat_left'] → the seat physically to the left (e.g., 9)
+
+available_seats → a set of all available seat numbers
+
+This checks:
+
+“Is the left seat ALSO available?”
+
+If yes, then we’ve found a valid adjacent pair.
+
+5️⃣ Add the left-seat pair (sorted)
+pairs.append(tuple(sorted([seat, int(row['seat_left'])])))
+
+
+Breakdown:
+
+[seat, int(row['seat_left'])] → [10, 9]
+
+sorted(...) → [9, 10]
+
+tuple(...) → (9, 10)
+
+append(...) → add to pairs
+
+👉 Sorting is crucial
+It guarantees:
+
+(9, 10) instead of (10, 9)
+
+Lower seat number is always first (problem requirement)
+
+6️⃣ Check if the right adjacent seat is also available
+if row['seat_right'] in available_seats:
+
+
+Same logic as left seat
+
+Example:
+
+“Is seat 15 also available?”
+
+7️⃣ Add the right-seat pair (again sorted)
+pairs.append(tuple(sorted([seat, int(row['seat_right'])])))
+
+
+Example:
+
+[10, 15] → (10, 15)
+
+Stored in a consistent order
+
+Problem
+Identify the products that exist in the inventory but have never been sold. 
+Return the product ID and product name for each unsold product.
+
+
+sold = sales_transactions['product_id'].unique()
+not_sold = inventory_current_stock[
+    ~inventory_current_stock['product_id'].isin(sold)
+]['product_id'].unique()
+notsold = inventory_current_stock[inventory_current_stock['product_id'].apply(lambda x: x not in sold)][['product_id', 'product_name']]
