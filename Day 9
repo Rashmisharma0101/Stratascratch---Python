@@ -21,3 +21,61 @@ values = activity_log.groupby('user_id')['activity_type'].nunique().reset_index(
 merged = user_profiles.merge(values, on = 'user_id', how  = 'left')
 merged['activity_count'] = merged['activity_count'].fillna(0).astype(int)
 merged[['user_id','activity_count']]
+
+4. For each user, calculate the total listening time and the count of unique songs they've listened to. In the database duration values are displayed in seconds. Round the total listening duration to the nearest whole minute.
+values = listening_habits.groupby('user_id').agg(
+    total_listen_duration  = ('listen_duration', 'sum'),
+    unique_song_count  = ('song_id', 'nunique')
+    ).reset_index()
+    
+values['total_listen_duration'] = (values['total_listen_duration']/60).round()
+values
+
+5. For each week, starting on Sunday, calculate the total quantity across all orders for that week.
+Include only the orders that are from the first quarter of 2023. The output should contain 'week' and 'quantity'.
+
+filtered = orders_analysis[(orders_analysis['week'] >= '2023-01-01') &
+    (orders_analysis['week'] <= '2023-03-31')]
+    
+# create week starting on Sunday
+filtered['week'] = (
+    filtered['week']
+        .dt.to_period('W-SUN')
+        .apply(lambda x: x.start_time)
+)
+    
+filtered.groupby('week')['quantity'].sum().reset_index()
+
+
+6. You are provided with an already aggregated dataset from Amazon that contains detailed 
+information about sales across different products and marketplaces. Your task is to list the top 3 sellers in each product category for January. 
+In case of ties, rank them the same and include all sellers tied for that position.
+
+jan = sales_data[(sales_data['sales_date'] <= '2024-01-31') &
+(sales_data['sales_date'] >= '2024-01-01')
+]
+jan['rank'] = jan.groupby('product_category')['total_sales'].rank(method = 'dense', ascending = False)
+jan_top = jan[jan['rank'] <= 3]
+jan_top[['seller_id' ,'total_sales' ,'product_category' , 'market_place', 'sales_date']]
+
+7.  You are given a dataset from Amazon that tracks and aggregates user activity on their platform in certain time periods. 
+For each device type, find the time period with the highest number of active users.
+
+user_activity['time_period'] = user_activity['start_timestamp'].astype(str) + ' to ' + user_activity['end_timestamp'].astype(str)
+#user_activity.groupby('device_type')['user_count'].count().reset_index()
+user_activity['rank'] = user_activity.groupby('device_type')['user_count'].rank(method = 'dense', ascending = False)
+user_activity[user_activity['rank']==1]
+
+8. Find all the songs that were top-ranked (at first position) at least once since the year 2005.
+
+filtered = billboard_top_100_year_end[billboard_top_100_year_end['year'] >= 2005]
+filtered[filtered['year_rank'] == 1]
+filtered['song_name'].unique()
+
+9. Find the gender that has made the most number of doctor appointments.
+Output the gender along with the corresponding number of appointments.
+
+df = medical_appointments.groupby('gender')['appointmentid'].count().reset_index(name = 'counts')
+df[df['counts'] == df['counts'].max()]
+
+10. 
