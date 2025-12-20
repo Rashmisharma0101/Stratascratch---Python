@@ -35,4 +35,68 @@ filtered
 Output the day alongside the corresponding crime count.
 sf_crime_incidents_2014_01.groupby('day_of_week')['incidnt_num'].count().reset_index(name  = 'counts')[['day_of_week', 'counts']]
 
+6.Find the total number of searches for houses in Westlake neighborhood with a TV among the amenities.
+
+airbnb_search_details['tv'] = airbnb_search_details['amenities'].apply(lambda x : 'tv' if 'TV' in x else 'no')
+filtered  = airbnb_search_details[(airbnb_search_details['neighbourhood'] == 'Westlake') & (airbnb_search_details['tv'] == 'tv') ]
+
+Alternate .str.contains
+total_searches = airbnb_search_details[
+    (airbnb_search_details['neighbourhood'] == 'Westlake') &
+    (airbnb_search_details['amenities'].str.contains('"TV"|\\bTV\\b', regex=True, na=False))
+].shape[0]
+
+7. Find the number of relationships that user with id == 1 is not part of.
+filtered = facebook_friends[(facebook_friends['user1'] != 1) & (facebook_friends['user2'] != 1)] 
+filtered.shape[0]
+
+8. Find whether hosts or guests give higher review scores based on their average review scores. 
+Output the higher of the average review score rounded to the 2nd decimal spot (e.g., 5.11).
+values = airbnb_reviews.groupby('from_type')['review_score'].mean().round(2).reset_index(name = 'average_score')
+values[values['average_score'] == values['average_score'].max()]
+
+9. Based on the above, find the average popularity of the Hack per office location.
+Output the location along with the average popularity.
+
+df = facebook_employees.merge(facebook_hack_survey, left_on = 'id', right_on = 'employee_id', how = 'left')
+df.groupby('location')['popularity'].mean().reset_index(name = 'avg_pop')
+
+10. Find the number of reviews received by Lo-Lo's Chicken & Waffles for each star.
+Output the number of stars along with the corresponding number of reviews.
+Sort records by stars in ascending order.
+value = yelp_reviews.groupby('stars')['review_id'].count().reset_index(name = 'number_of_reviews').sort_values(by = 'stars')
+
+11. Find wine varieties tasted by 'Roger Voss' and with a value in the 'region_1' column of the dataset. 
+Output unique variety names only.
+winemag_p2[(winemag_p2['region_1'].notna()) & (winemag_p2['taster_name'] == 'Roger Voss')]['variety'].unique()
+
+12. Find the hour with the highest gasoline cost. Assume there's only 1 hour with the highest gas cost.
+lyft_rides[lyft_rides['gasoline_cost'] == lyft_rides['gasoline_cost'].max()]['hour']
+
+alternate 
+hour_max_gas = lyft_rides.loc[lyft_rides['gasoline_cost'].idxmax(), 'hour']
+
+13.Find the cost per customer for each advertising channel and year combination 
+. Include only channels that are advertised via public transport 
+(advertising channel includes "bus" substring).
+The cost per customer is equal to the total spent money divided by the total number 
+of acquired customers through that advertising channel. Output advertising channel, year and its cost per customer.
+
+df = uber_advertising[uber_advertising['advertising_channel'].str.contains('bus')]
+df_new = df.groupby(['advertising_channel', 'year']).agg(
+    total_money = ('money_spent', 'sum'),
+    total_customers = ('customers_acquired', 'sum')
+    ).reset_index()
+df_new['cost_per_customer'] = df_new['total_money'] / df_new['total_customers']
+df_new[['advertising_channel', 'year', 'cost_per_customer']]
+
+14. Find how many times each artist appeared on the Spotify ranking list. Output the artist name along with the corresponding number of occurrences. Order records by the number of occurrences in descending order. 
+spotify_worldwide_daily_song_ranking['artist'].value_counts().sort_values(ascending = False).reset_index()
+
+15. Find the Olympic game which had the highest number of participants that didn't earn a medal.
+Output the Olympic game name along with the corresponding number of athletes.
+Olympic game name consists of the year and the season
+
+df = olympics_athletes_events[olympics_athletes_events['medal'].isna()]
+df.groupby('games')['name'].nunique().reset_index(name = "num_part").sort_values(by = 'num_part', ascending = False)[:1]
 
