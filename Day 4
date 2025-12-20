@@ -1,0 +1,38 @@
+1. Find the number of acquisitions that occurred in each quarter of each year. 
+Output the acquired quarter (either as a quarter label like YYYY-QQ or as the quarter start date) along with the number of acquisitions, 
+and order results by the quarters with the highest number of acquisitions first.
+
+crunchbase_acquisitions['acquired_quarter'] = (
+    crunchbase_acquisitions['acquired_at']
+    .dt.to_period('Q')
+    .astype(str)   # gives YYYYQn format
+)
+crunchbase_acquisitions.groupby('acquired_quarter')['id'].count().reset_index(name  = 'counts').sort_values(by = 'counts', ascending = False)
+
+2. Rank guests based on their ages.
+Output the guest id along with the corresponding rank.
+Order records by the age in descending order.
+airbnb_guests['rank'] = airbnb_guests['age'].rank(method ='dense', ascending = False)
+airbnb_guests = airbnb_guests.sort_values(by = 'rank')
+airbnb_guests[['guest_id', 'rank']]
+
+3. Write a query to find which gender gives a higher average review score when writing reviews as guests.
+Use the from_type column to identify guest reviews. 
+Output the gender and their average review score.
+filtered = airbnb_reviews[airbnb_reviews['from_type'] == 'guest'] 
+df = filtered.merge(airbnb_guests, left_on = 'from_user', right_on = 'guest_id', how = 'left') 
+values = df.groupby('gender')['review_score'].mean().reset_index() 
+values[values['review_score'] == max(values['review_score'])]
+
+4.Find employees who started in June and have even-numbered employee IDs.
+
+worker['month'] = worker['joining_date'].dt.month
+worker['even_odd'] = worker['worker_id'].apply(lambda x : 'even' if x % 2 ==0 else 'odd')
+filtered = worker[(worker['even_odd'] == 'even') & (worker['month'] == 6)]
+filtered
+
+5. Find the number of crime occurrences for each day of the week.
+Output the day alongside the corresponding crime count.
+sf_crime_incidents_2014_01.groupby('day_of_week')['incidnt_num'].count().reset_index(name  = 'counts')[['day_of_week', 'counts']]
+
+
