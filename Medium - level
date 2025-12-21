@@ -1,0 +1,55 @@
+You are given the list of Facebook friends and the list of Facebook pages that users follow. 
+Your task is to create a new recommendation system for Facebook. For each Facebook user, 
+find pages that this user doesn't follow but at least one of their friends does.
+Output the user ID and the ID of the page that should be recommended to this user.
+
+users_friends.head()
+friend_pages = users_friends.merge(
+    users_pages,
+    left_on='friend_id',
+    right_on='user_id',
+    how='inner'
+)
+recommendations = friend_pages.merge(
+    users_pages,
+    left_on=['user_id_x', 'page_id'],
+    right_on=['user_id', 'page_id'],
+    how='left',
+)
+recommendations = recommendations[recommendations['user_id'].isnull()]
+recommendations[['user_id_x', 'page_id']].drop_duplicates()
+
+-------------------------------------------------------------------------------------------------------------
+Find the customers with the highest daily total order cost between 2019-02-01 and 2019-05-01. 
+If a customer had more than one order on a certain day, sum the order costs on a daily basis.
+Output each customer's first name, total cost of their items, and the date. 
+If multiple customers tie for the highest daily total on the same date, return all of them.
+
+orders_df = orders[orders['order_date'].between('2019-02-01', '2019-05-01') ]
+merged = orders_df.merge(customers, right_on = 'id', left_on = 'cust_id', how = 'left')
+new = merged.groupby(['cust_id','first_name','order_date'])['total_order_cost'].sum().reset_index()
+new['rank'] = new.groupby('order_date')['total_order_cost'].rank(method = 'dense', ascending = False)
+new[new['rank'] == 1][['first_name','total_order_cost' , 'order_date']]
+
+-------------------------------------------------------------------------------------------------------------
+Calculate the net change in the number of products launched by companies in 2020 compared to 2019.
+Your output should include the company names and the net difference.
+(Net difference = Number of products launched in 2020 - The number launched in 2019.)
+
+y2019 = car_launches[car_launches['year'] == 2019]
+y2020 = car_launches[car_launches['year'] == 2020]
+df1  = y2019.groupby('company_name')['product_name'].count().reset_index(name = '2019_count')
+df2  = y2020.groupby('company_name')['product_name'].count().reset_index(name = '2020_count')
+df = df1.merge(df2, on = 'company_name', how = 'outer')
+df['net_diff'] = df['2020_count'] - df['2019_count']
+df[['company_name', 'net_diff']]
+
+-------------------------------------------------------------------------------------------------------------
+Find wineries producing wines with aromas of plum, cherry, rose, or hazelnut (singular form only). 
+To make things simpler,
+exclude any wine descriptions that contain the plural forms (ex. cherries).
+
+keywords = r'\b(plum|cherry|rose|hazelnut)\b'
+df['rank'] = df['description'].str.contains(keywords, case = False, na = False).astype(int)
+
+-------------------------------------------------------------------------------------------------------------
