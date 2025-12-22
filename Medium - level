@@ -143,3 +143,13 @@ result = (
 )
 
 ---------------------------------------------------------------------------------------------------------------
+Verify that the first 4 digits are equal to 1415 for all phone numbers. 
+Output the number of businesses with a phone number that does not start with 1415.
+
+
+sf_restaurant_health_violations[
+    ~sf_restaurant_health_violations['business_phone_number']
+        .astype(str)
+        .str.startswith('1415')
+
+---------------------------------------------------------------------------------------------------------------
