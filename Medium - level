@@ -53,3 +53,32 @@ keywords = r'\b(plum|cherry|rose|hazelnut)\b'
 df['rank'] = df['description'].str.contains(keywords, case = False, na = False).astype(int)
 
 -------------------------------------------------------------------------------------------------------------
+
+A group of travelers embark on world tours starting with their home cities. 
+Each traveler has an undecided itinerary that evolves over the course of the tour. 
+Some travelers decide to abruptly end their journey mid-travel and live in their last destination.
+Given the dataset of dates on which they travelled between different pairs of cities,
+can you find out how many travellers ended back in their home city? For simplicity, 
+you can assume that each traveler made at most one trip between two cities in a day.
+
+df = travel_history.sort_values(['traveler', 'date'])
+home_city = df.groupby('traveler').first().reset_index()[['traveler', 'start_city']].rename(columns= {'start_city': 'home_city'})
+
+final_city = (
+    df
+    .groupby('traveler')
+    .last()
+    .reset_index()[['traveler', 'end_city']]
+    .rename(columns={'end_city': 'final_city'})
+)
+summary = home_city.merge(final_city, on='traveler')
+result = summary[summary['home_city'] == summary['final_city']].shape[0]
+
+# learning - .first -  For each group, return the first row that appears.
+
+
+
+
+
+
+
