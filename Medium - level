@@ -75,10 +75,71 @@ summary = home_city.merge(final_city, on='traveler')
 result = summary[summary['home_city'] == summary['final_city']].shape[0]
 
 # learning - .first -  For each group, return the first row that appears.
+First” is NOT based on date automatically
+It is based on current row order in the DataFrame.
+-------------------------------------------------------------------------------------------------------------
+You have been asked to find the employees with the highest and lowest salary across whole dataset.
+Your output should include the employee's ID, salary, and employee's department,
+as well as a column salary_type that categorizes the output by:
+'Highest Salary' represents the highest salary
+'Lowest Salary' represents the lowest salary
 
+high = worker[worker['salary']== worker['salary'].max()]['salary'].values[0]
+low = worker[worker['salary']== worker['salary'].min()]['salary'].values[0]
 
+worker['salary_type'] = worker['salary'].apply(lambda x : ('high' if x == high else 'low' if x == low else 0))
+worker[worker['salary_type'] != 0][['worker_id', 'salary', 'department']]
 
+ALternate
+high = worker['salary'].max()
+low = worker['salary'].min()
 
+worker['salary_type'] = worker['salary'].apply(
+    lambda x: 'Highest Salary' if x == high
+    else 'Lowest Salary' if x == low
+    else None
+)
+worker[worker['salary_type'].notna()][['worker_id', 'salary', 'department']]
+---------------------------------------------------------------------------------------------------------------
+You have a dataset containing information about wines, including their regions, varieties, and 
+prices. Some wines have two regions listed (region_1 and region_2). Calculate the total cost of 
+wines for each combination of region and variety, 
+using both region columns.
+Because there are two regions listed, first combine the data from both region columns, 
+making sure to remove any duplicate entries and excluding any records with missing prices or regions. 
+Then, sum the prices for each unique combination of region and variety and present the results,
+showing the region, variety, and total price. Order the final result from the highest total price to the lowest.
 
+df = winemag_p1[['region_1', 'region_2', 'variety', 'price']].dropna(subset=['price', 'region_1', 'region_2'])
+df1 = df[['region_1', 'variety', 'price']].rename(columns={'region_1':'region'})
+df2 = df[['region_2', 'variety', 'price']].rename(columns={'region_2':'region'})
+df_combined = pd.concat([df1, df2], ignore_index=True)
+df_combined = df_combined.drop_duplicates()
+result = (
+    df_combined
+    .groupby(['region', 'variety'])['price']
+    .sum()
+    .reset_index(name='Total_price')
+    .sort_values(by='Total_price', ascending=False)
+)
+---------------------------------------------------------------------------------------------------------------
+Your company operates a VR gaming platform where users can launch and play various virtual reality applications. 
+The vr_sessions table records every session initiated by users, capturing when they started an app and when they 
+exited. The platform analytics 
+team needs to understand app popularity and usage patterns.
+Calculate the total number of unique sessions for each VR application. 
+A session is identified by a unique session_id. If the same session_id appears multiple times in the table (which can happen due to connection retries or logging issues), count it as only one session by keeping the record with the earliest start_time. Include all applications that have at least one session in your results. Return the app name and the total number of sessions.
 
+Keep only earliest record per session
+vr_sessions_earliest = vr_sessions.sort_values('start_time').drop_duplicates(subset='session_id', keep='first')
 
+Count unique sessions per app
+result = (
+    vr_sessions_earliest
+    .groupby('app_name')['session_id']
+    .nunique()
+    .reset_index(name='total_sessions')
+    .sort_values('total_sessions', ascending=False)
+)
+
+---------------------------------------------------------------------------------------------------------------
