@@ -153,3 +153,71 @@ sf_restaurant_health_violations[
         .str.startswith('1415')
 
 ---------------------------------------------------------------------------------------------------------------
+Find the date when Apple's opening stock price reached its maximum
+
+aapl_historical_stock_price.loc[aapl_historical_stock_price['open'].idxmax(), ['date', 'open']]
+
+learning -idxmax() is more efficient
+
+---------------------------------------------------------------------------------------------------------------
+
+df = df.sort_values(["car_id", "timestamp_epoch"])
+
+# next timestamp per car
+df["next_ts"] = df.groupby("car_id")["timestamp_epoch"].shift(-1)
+# duration in seconds
+df["duration_seconds"] = df["next_ts"] - df["timestamp_epoch"]
+df["duration_seconds"] = df["duration_seconds"].fillna(7200)
+
+result = (
+    df.groupby("gear")["duration_seconds"]
+      .sum()
+      .div(3600)
+      .round(2)
+      .reset_index(name="total_hours")
+)
+ learning = .shift(-1) gives next value of the column (1 cell down) like lead()
+shift(1) give i value like lag()
+
+---------------------------------------------------------------------------------------------------------------
+
+idxmax just gives first row in case of ties
+
+so use 
+gp[gp['counts'] == gp['counts'].max()] instead whereever necessary for ties
+
+---------------------------------------------------------------------------------------------------------------
+
+Users By Average Session Time
+Calculate each user's average session time, where a session is defined as the time difference
+between a page_load and a page_exit. Assume each user has only one session per day. If there are 
+multiple page_load or page_exit events on the same day, use only the latest page_load and the earliest page_exit. 
+Only consider sessions where the page_load occurs 
+
+facebook_web_log['date'] = facebook_web_log['timestamp'].astype(str).apply(lambda x : x.split(" ")[0])
+facebook_web_log = facebook_web_log.sort_values(by = ['user_id','timestamp'], ascending = [True, True])
+pl = facebook_web_log[facebook_web_log['action'] == 'page_load']
+pe = facebook_web_log[facebook_web_log['action'] == 'page_exit']
+#le['rank'] = le.groupby(['user_id','action'])['timestamp'].rank(method = 'dense')
+pl = pl.groupby(['user_id', 'date'])['timestamp'].max().reset_index(name = 'latest_load_time')
+pe = pe.groupby(['user_id', 'date'])['timestamp'].min().reset_index(name = 'earliest_page_exit')
+
+merged = pl.merge(pe, on = 'user_id', how = 'left')
+
+merged = merged[merged['date_x'] == merged['date_y']]
+merged['session_time'] = merged['earliest_page_exit'] - merged['latest_load_time']
+merged.groupby('user_id')['session_time'].mean().reset_index()
+before the page_exit on the same day. Output the user_id and their average session time.
+
+---------------------------------------------------------------------------------------------------------------
+An app has product features that help guide users through a marketing funnel. 
+Each user may complete some or all steps of a feature. For each feature, calculate the 
+average completion percentage across users, where a user's completion percentage is defined 
+as their maximum step reached divided by the total number of steps (n_steps) for that 
+feature, multiplied by 100.
+
+df = facebook_product_features.merge(facebook_product_features_realizations, on = 'feature_id', how = 'left')
+df = df.groupby(['feature_id', 'user_id', 'n_steps'], as_index=False)['step_reached'].max()
+df["comp_percentage"] =( df['step_reached'] / df['n_steps'])*100
+df.groupby('feature_id')['comp_percentage'].mean().reset_index()
+---------------------------------------------------------------------------------------------------------------
