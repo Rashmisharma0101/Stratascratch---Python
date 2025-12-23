@@ -1,0 +1,37 @@
+Find the number of emails received by each user under each built-in email label.
+The email labels are: 'Promotion', 'Social', and 'Shopping'.
+Output the user along with the number of promotion, social, and shopping mails count,.
+
+df = google_gmail_emails.merge(google_gmail_labels, left_on = 'id', right_on = 'email_id', how = 'inner')
+df['shopping'] = df['label'].apply(lambda x : 1  if x  == 'Shopping' else 0)
+df['Promotion'] = df['label'].apply(lambda x : 1  if x  == 'Promotion' else 0)
+df['Social'] = df['label'].apply(lambda x : 1  if x  == 'Social' else 0)
+values = df.groupby('to_user').agg(
+    shopping_cnt  = ('shopping', 'sum'),
+    Promotion_cnt  = ('Promotion', 'sum'),
+    Social_cnt  = ('Social', 'sum')
+    ).reset_index()
+
+result = (
+    df.pivot_table(
+        index='to_user',
+        columns='label',
+        values='id',
+        aggfunc='count',
+        fill_value=0
+    )
+    .reset_index()
+)
+------------------------------------------------------------------------------------------------------------------
+
+Identify users who have logged at least one activity within 30 days of their registration date.
+Your output should include the user’s ID, registration date, and a count of the number of activities 
+logged within that 30-day period.
+Do not include users who did not perform any activity within this 30-day period.
+
+df = user_profiles.merge(user_activities, on = 'user_id', how = 'inner')
+df_30 = df[(df['activity_date'] >= df['signup_date']) & (df['activity_date'] <= df['signup_date'] + pd.Timedelta(days = 30))]
+df.groupby(['user_id', 'signup_date'])['activity_type'].size().reset_index(name = 'counts')
+
+------------------------------------------------------------------------------------------------------------------
+
