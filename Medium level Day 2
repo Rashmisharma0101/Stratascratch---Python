@@ -35,3 +35,40 @@ df.groupby(['user_id', 'signup_date'])['activity_type'].size().reset_index(name 
 
 ------------------------------------------------------------------------------------------------------------------
 
+Redfin helps clients to find agents. Each client will have a unique request_id and each
+request_id has several calls. For each request_id, the first call 
+is an “initial call” and all the following calls are “update calls”. 
+What's the average call duration for all update calls?
+
+redfin_call_tracking = redfin_call_tracking.sort_values(by = ['request_id', 'created_on'])
+redfin_call_tracking['is_first_row'] = redfin_call_tracking.groupby('request_id')['created_on'].rank(method = 'first')
+df = redfin_call_tracking[redfin_call_tracking['is_first_row'] != 1]
+#redfin_call_tracking['rank'] = #.rank(method = 'dense')
+df.groupby('request_id')['call_duration'].mean().reset_index()
+
+------------------------------------------------------------------------------------------------------------------
+Identify colleges with underweight and overweight athletes. Consider athletes with weight < 180 pounds
+as underweight and players with weight > 250 pounds as overweight. Output the college along with the
+total number of overweight and underweight players. If the college does not have any underweight/overweight
+players, leave the college out of the output. 
+You can assume that each athlete's full name is unique on their college.
+
+nfl_combine['full_name'] = nfl_combine['firstname'] + ' ' + nfl_combine['lastname']
+nfl_combine['weight'] = pd.to_numeric(
+    nfl_combine['weight'], errors='coerce'
+)
+df  = nfl_combine[(nfl_combine['weight'] < 180) | (nfl_combine['weight'] > 250)]
+df['underweight'] = (df['weight'] < 180).astype(int)
+df['overweight'] = (df['weight'] > 250).astype(int)
+df
+df.groupby('college')[['underweight', 'overweight']].sum().reset_index()
+
+------------------------------------------------------------------------------------------------------------------
+Find the total monetary value for completed orders by service type for every month. 
+Output your result as a pivot 
+table where there is a column for month and columns for each service type.
+
+uber_orders.head()
+uber_orders['month'] = uber_orders['order_date'].dt.month
+df = uber_orders[uber_orders['status_of_order'] == 'Completed']
+df.groupby([ 'month', 'service_name'])['monetary_value'].sum().unstack().reset_index()
