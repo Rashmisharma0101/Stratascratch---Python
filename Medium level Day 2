@@ -72,3 +72,19 @@ uber_orders.head()
 uber_orders['month'] = uber_orders['order_date'].dt.month
 df = uber_orders[uber_orders['status_of_order'] == 'Completed']
 df.groupby([ 'month', 'service_name'])['monetary_value'].sum().unstack().reset_index()
+
+------------------------------------------------------------------------------------------------------------------
+learning - .clip
+# Step 2: Replace negative values with 0
+weather_data['sunny_hours'] = weather_data['sunny_hours'].clip(lower=0)
+
+Filtering conditions that define eligibility must come BEFORE ranking.
+------------------------------------------------------------------------------------------------------------------
+✅ Key takeaway
+
+Dense ranking (dense): 1, 2, 2, 3 → no gaps → top 3 includes all ≤3
+Min ranking (min): 1, 2, 2, 4 → has gaps → top 3 includes only ranks 1 and 2 (exclude 4)
+So “top 3 ranks” always means:
+
+rank <= 3
+regardless of gaps.
