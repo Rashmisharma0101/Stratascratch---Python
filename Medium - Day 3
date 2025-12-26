@@ -1,0 +1,103 @@
+The company you are working for wants to anticipate their staffing needs by identifying 
+their top two busiest times of the week. To find this, each day should be segmented into differents 
+parts using following criteria:
+
+Morning: Before 12 p.m. (not inclusive)
+Early afternoon: 12 -15 p.m.
+Late afternoon: after 15 p.m. (not inclusive)
+Your output should include the day and time of day combination for the two busiest times, 
+i.e. the combinations with the most orders, along with the number of orders (e.g. top two results 
+could be Friday Late afternoon with 12 orders and Sunday Morning with 10 orders). 
+The company has also requested that the day be displayed in text format (i.e. Monday).
+Note: In the event of a tie in ranking, all results should be displayed.
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+sales_log.head()
+sales_log['time'] =  sales_log['timestamp'].dt.time
+sales_log['day'] =  sales_log['timestamp'].dt.day_name()
+def tag_day(ts):
+    hr = ts.hour
+    
+    if hr < 12:
+        return 'Morning'
+    elif hr >= 12 and hr <= 15:
+        return 'Early Afternoon'
+    else:
+        return 'Late Afternoon'
+sales_log['day_tag'] = sales_log['time'].apply(tag_day)
+values = sales_log.groupby(['day', 'day_tag'])['order_id'].count().reset_index(name  = 'total_counts')
+values['rank'] = values['total_counts'].rank(method = 'dense', ascending = False)
+value  = values[values['rank']<=2]
+value[['day', 'day_tag', 'total_counts', 'rank']].sort_values('rank', ascending = True)
+
+-----------------------------------------------------------------------------------------------------------------
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+billboard_top_100_year_end.head()
+df = billboard_top_100_year_end[billboard_top_100_year_end['year'] == 2010]
+top_10 = df[(df['year_rank'] <= 10)]
+top_10[['year_rank', 'group_name', 'song_name']].drop_duplicates(subset='song_name', keep='first').sort_values(by = 'year_rank')
+
+learning - drop_duplicates(subset='song_name', keep='first'), if same song occurs with diff rank in smae year, keep first
+
+--------------------------------------------------------------------------------------------------------------------
+Top 10 songs
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+billboard_top_100_year_end.head()
+top_10 = billboard_top_100_year_end[billboard_top_100_year_end['year_rank'] <= 10]
+values = top_10.groupby('artist')['song_name'].nunique().reset_index(name = 'unique_songs')
+values.sort_values(by = 'unique_songs', ascending = False)
+
+---------------------------------------------------------------------------------------------------------------------
+cleaner approach
+result = (
+    titanic
+    .groupby('pclass')['survived']
+    .value_counts()
+    .unstack(fill_value=0)
+    .reset_index()
+)
+
+result.columns = ['pclass', 'not_survived', 'survived']
+result
+
+--------------------------------------------------------------------------------------------------------------------
+
+List the IDs of customers who made at least 3 orders in both 2020 and 2021.
+amazon_orders['year'] = amazon_orders['order_date'].dt.year
+df = amazon_orders[(amazon_orders['year']== 2020) | (amazon_orders['year']== 2021)]
+values = df.groupby(['user_id', 'year'])['id'].count().unstack().reset_index()
+
+df1 = values[
+    (values[2020] >= 3) & (values[2021] >= 3)]
+df1
+--------------------------------------------------------------------------------------------------------------------
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+transportation_numbers.head()
+minimum = transportation_numbers['number'].min()
+maximum = transportation_numbers['number'].max()
+
+transportation_numbers['tag'] = transportation_numbers['number'].between(minimum, maximum,  inclusive='neither').astype(int)
+transportation_numbers
+summation = transportation_numbers[transportation_numbers['tag'] ==1]['number'].sum()
+summation
+
+df = pd.DataFrame({
+    'minimum': [minimum],
+    'maximum': [maximum],
+    'summation': [summation]
+})   # putting three  number as dataframe in this step
+
+--------------------------------------------------------------------------------------------------------------------
