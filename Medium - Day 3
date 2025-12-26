@@ -101,3 +101,7 @@ df = pd.DataFrame({
 })   # putting three  number as dataframe in this step
 
 --------------------------------------------------------------------------------------------------------------------
+transportation_numbers['tag'] = transportation_numbers['index'].apply(lambda x: 'less' if x < 5 else ('more' if x > 5 else None))
+transportation_numbers.groupby('tag')['number'].sum().reset_index(name = 'summation')
+# excluded equal to 5 from both conditions in lambda functions
+--------------------------------------------------------------------------------------------------------------------
