@@ -1,0 +1,11 @@
+# Start writing code
+customer_responses.head()
+import re
+df = customer_responses[customer_responses['customer_response'].str.contains(r'(?<!\d)\d{10}(?!\d)', regex=True, na=False)]
+values = df.groupby('employee_id')['customer_response'].count().reset_index(name = 'counts')
+values['rank'] = values['counts'].rank(method= 'dense', ascending = False)
+df = values[values['rank'] == 1]
+df[['employee_id', 'counts']]
+
+--------------------------------------------------------------------------------------
+
