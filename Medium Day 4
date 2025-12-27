@@ -9,3 +9,8 @@ df[['employee_id', 'counts']]
 
 --------------------------------------------------------------------------------------
 
+worker['rank']  = worker['salary'].rank(method = 'dense', ascending = False)
+worker[worker['rank'] == 2]['salary'].iloc[0]
+
+learning - .iloc picks just the values, instead of df
+
