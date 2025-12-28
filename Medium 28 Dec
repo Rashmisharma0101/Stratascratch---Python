@@ -1,0 +1,15 @@
+why use .ge(3) instead of >= 3?
+1️⃣ Method chaining (cleaner pipelines)
+df.groupby('request_id').size().ge(3).sum()
+vs
+(df.groupby('request_id').size() >= 3).sum()
+-------------------------------------------------------------------------------------------------------
+examine rows that have missing values in more than one column.
+user_flags[user_flags.isna().sum(axis = 1) > 1]
+
+Common operations using axis=1
+df.sum(axis=1)          # row-wise sum
+df.mean(axis=1)        # row-wise average
+df.isna().any(axis=1)  # rows with at least one missing value
+df.isna().all(axis=1)  # rows with all missing values
+-------------------------------------------------------------------------------------------------------
