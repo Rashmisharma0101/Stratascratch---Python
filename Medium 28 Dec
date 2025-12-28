@@ -13,3 +13,23 @@ df.mean(axis=1)        # row-wise average
 df.isna().any(axis=1)  # rows with at least one missing value
 df.isna().all(axis=1)  # rows with all missing values
 -------------------------------------------------------------------------------------------------------
+df1 = orders.merge(customers, left_on = 'cust_id', right_on = 'id', how = 'left')
+values = df1.groupby('cust_id')['total_order_cost'].sum().reset_index(name = 'percustspend')
+df = df1.merge(values, on = 'cust_id', how = 'inner')
+df['ratio'] = (df['total_order_cost'] / df['percustspend']) * 1.0
+df[['first_name', 'order_details', 'ratio']]
+
+learning -
+alternate - use transform, to keep rows intact, perfect for row-level ratios
+
+df = orders.merge(
+    customers,
+    left_on='cust_id',
+    right_on='id',
+    how='left'
+)
+df['ratio'] = (
+    df['total_order_cost'] /
+    df.groupby('cust_id')['total_order_cost'].transform('sum')
+)
+df[['first_name', 'order_details', 'ratio']]
