@@ -33,3 +33,30 @@ df['ratio'] = (
     df.groupby('cust_id')['total_order_cost'].transform('sum')
 )
 df[['first_name', 'order_details', 'ratio']]
+-----------------------------------------------------------------------------------------------
+excel_sql_inventory_data.head()
+df = excel_sql_inventory_data.merge(excel_sql_transaction_data, on = 'product_id', how = 'inner')
+values = df.groupby('product_id')['transaction_id'].count().reset_index(name = 'transcount')
+df1 = df.merge(values, on ='product_id', how = 'inner')
+df1[['product_id', 'product_name', 'transcount']].drop_duplicates().sort_values(by = 'product_id', ascending = True)
+learning - 
+alternate
+
+df['transcount'] = (
+    df.groupby('product_id')['transaction_id']
+      .transform('count')
+)   # it does same  thing , but  does not let rows collapse, so merging back is avoided
+
+OR
+
+counts = df.groupby('product_id')['transaction_id'].count()
+
+df['transcount'] = df['product_id'].map(counts)
+-----------------------------------------------------------------------------------------------
+
+learning - 
+
+cat_sales = df.groupby('category_name')['units_sold'].apply(lambda x : x.notna().any()).reset_index(name  = 'ever_sold')
+# If ANY product in category has units_sold, category is sold
+
+-----------------------------------------------------------------------------------------------
