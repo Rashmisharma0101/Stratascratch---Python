@@ -60,3 +60,46 @@ cat_sales = df.groupby('category_name')['units_sold'].apply(lambda x : x.notna()
 # If ANY product in category has units_sold, category is sold
 
 -----------------------------------------------------------------------------------------------
+
+Find the owners who have at least one facility with all 3 grades.
+
+la_restaurant_health_inspections.head()
+df = la_restaurant_health_inspections[['facility_id', 'grade', 'owner_id', 'owner_name']]
+listA, listB, listC = [], [], []
+grouped = df.groupby('grade')['facility_id'].apply(list)
+
+listA = grouped.get('A', [])
+listB = grouped.get('B', [])
+listC = grouped.get('C', [])
+
+common_facilities  = set(listA) & set(listB) & set(listC)
+common_facilities = list(common_facilities)
+common_facilities
+df[df['facility_id'].isin(common_facilities)]['owner_name'].unique()
+
+-----------------------------------------------------------------------------------------------------
+Count the number of unique street names for each postal code in the business dataset. 
+Use only the first word of the street name, case insensitive (e.g., "FOLSOM" and "Folsom" are the same).
+If the structure is reversed (e.g., "Pier 39" and "39 Pier"),
+count them as the same street.
+
+sf_restaurant_health_violations.head()
+df = sf_restaurant_health_violations
+df
+def canonical_street(address):
+    if pd.isna(address):
+        return None
+    
+    tokens = address.split()
+    tokens = tokens[:2] if len(tokens)>= 2 else tokens
+    tokens = [t.lower() for t in tokens]
+    
+    tokens.sort()
+    return "_".join(tokens)
+
+df['street_canonical'] = df['business_address'].apply(canonical_street)
+
+# Step 5: drop rows with no valid address
+df_valid = df.dropna(subset=['street_canonical'])  
+
+# learning - handling multiple string operations in  a column
