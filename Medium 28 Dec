@@ -107,4 +107,11 @@ df_valid = df.dropna(subset=['street_canonical'])
 
 learning - Always group in the same order as you want output
 -------------------------------------------------------------------------------------------------------
+Two users share a conversation if there is at least 1 message between them. Multiple messages 
+between the same pair of users are
+considered a single conversation.
+
+whatsapp_messages['user_pair'] = whatsapp_messages.apply(lambda x: tuple(sorted([x['message_sender_id'], x['message_receiver_id']])), axis = 1)
+----------------------------------------------------------------------------------------------------------
+
 
