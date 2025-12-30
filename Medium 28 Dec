@@ -103,3 +103,8 @@ df['street_canonical'] = df['business_address'].apply(canonical_street)
 df_valid = df.dropna(subset=['street_canonical'])  
 
 # learning - handling multiple string operations in  a column
+-----------------------------------------------------------------------------------------------------
+
+learning - Always group in the same order as you want output
+-------------------------------------------------------------------------------------------------------
+
