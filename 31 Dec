@@ -1,0 +1,73 @@
+learning
+df1['tag'] = df1['cust_id'].map(placed)
+Let’s break it down step by step.
+
+What your code is doing
+python
+Copy code
+placed = pd.Series(df1['cust_id'].unique())
+placed is a Series
+
+Its values = customer IDs
+
+Its index = 0,1,2,3,...
+
+Example:
+
+diff
+Copy code
+index   value
+0       101
+1       205
+2       333
+Why .map() fails here ❌
+.map() works like a lookup using the index, not the values.
+
+python
+Copy code
+df1['cust_id'].map(placed)
+Pandas tries to do:
+
+css
+Copy code
+placed[cust_id]
+But:
+
+cust_id values are like 101, 205, 333
+
+placed index is 0, 1, 2
+
+👉 No match → result becomes NaN
+
+So your tag column will be all NaN, or you may see unexpected output.
+
+Correct way ✅ (use isin, NOT map)
+Since you want to tag customers who placed orders, use:
+
+python
+Copy code
+df1['tag'] = df1['cust_id'].isin(placed).astype(int)
+Output:
+
+nginx
+Copy code
+cust_id   tag
+101       1
+205       1
+333       1
+📌 isin() checks membership, which is what you actually want.
+-------------------------------------------------------------------------------------------
+learning - sum uptill particular row  - rollingsums - .expanding(), rather than a fixed-size rolling window.”
+- "Rolling ≠ Expanding
+If the window keeps growing → use expanding()"
+
+
+df1 = amazon_books.merge(book_orders, on = 'book_id', how = 'left')
+df = df1[df1['order_date'].dt.year == 2022]
+df['rev'] = df['unit_price'] * df['quantity']
+df['month'] = df['order_date'].dt.month
+values = df.groupby('month')['rev'].mean().reset_index(name  = 'avgrevenue')
+values['rolling'] = (values['avgrevenue'].expanding().mean()).round()
+
+--------------------------------------------------------------------------------------------
+
