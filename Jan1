@@ -1,0 +1,6 @@
+r = pd.concat([df, df1]).drop_duplicates().reset_index(drop = True)
+learning - why use - drop = True
+Indices are duplicated (0,1,2,0,1,2)
+Resetting index is good practice
+We don’t want the old index as a column
+------------------------------------------------------------------------------------------------------------
