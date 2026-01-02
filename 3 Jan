@@ -1,0 +1,8 @@
+result = (
+    user_flags[user_flags['flag_id'].notna()]
+    .groupby('video_id')[['user_firstname', 'user_lastname']]
+    .nunique(dropna=False)
+    .reset_index()
+)
+
+learning-count NULL combinations as distinct - dropna=False
