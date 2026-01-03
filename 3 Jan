@@ -17,3 +17,10 @@ percentage = (
 )
 
 learning - .eq(0)
+
+-----------------------------------------------------------------------------------
+
+Use .size() when counting rows
+Use .count() only when counting non-null values in a specific column
+
+-----------------------------------------------------------------------------------
