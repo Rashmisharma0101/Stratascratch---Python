@@ -5,4 +5,15 @@ result = (
     .reset_index()
 )
 
-learning-count NULL combinations as distinct - dropna=False
+learning-count NULL combinations as distinct - dropna=False 
+
+-----------------------------------------------------------------------------------
+
+(len(first_orders[first_orders['delivery_rating'] == 0]) / len(first_orders))*100
+can be written as 
+
+percentage = (
+    first_orders['delivery_rating'].eq(0).mean() * 100
+)
+
+learning - .eq(0)
