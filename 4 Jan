@@ -1,0 +1,30 @@
+Create a report showing how many views each keyword has. 
+Output the keyword and the total views, and order records with highest view count first.
+keywords are [spaghetti,food] in this format in post_keywords column of df
+
+df['postkeywords'] = df['post_keywords'].str.split(',')
+df_exploded = df.explode('postkeywords')
+
+df_exploded['postkeywords'] = df_exploded['postkeywords'].str.replace('[', '')
+df_exploded['postkeywords'] = df_exploded['postkeywords'].str.replace(']', '')
+df_exploded.groupby('postkeywords')['viewer_id'].count().reset_index(name = 'total_views').sort_values(by = 'total_views', ascending = False)
+
+learning -  .explode, to create multiple rows each having one keyword, one row for spaghetti and one for food
+
+-------------------------------------------------------------------------------------------------------------------
+
+We want to identify the most suspicious claims in each state.]
+We'll consider the top 5% of claims (those at or above the 95th percentile of fraud scores) 
+in each state as potentially fraudulent.
+
+fraud_score.head()
+#fraud_score['totalfraudscore'] = fraud_score.groupby('state')['fraud_score'].transform('sum')
+def perc(x):
+    return np.percentile(x, 95)
+values = fraud_score.groupby('state')['fraud_score'].agg(perc).reset_index(name = 'percentilescore')
+df = values.merge(fraud_score, on = 'state', how = 'inner')
+df[df['fraud_score'] >= df['percentilescore']]
+
+learning - percentile syntax
+
+--------------------------------------------------------------------------------------------------------
