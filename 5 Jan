@@ -43,3 +43,48 @@ result
 
 learning - Whenever you pivot rank → column, you MUST guarantee uniqueness.
 cumcount()- One row per rank, INSTEAD OF DENSE RANK
+---------------------------------------------------------------------------------
+
+
+df = facebook_web_log.copy()
+
+# Ensure data is ordered correctly
+df = df.sort_values(['user_id', 'timestamp'])
+
+# Keep only relevant actions
+df = df[df['action'].isin(['page_load', 'scroll_down'])]
+
+# Create a column that keeps the latest page_load timestamp so far
+df['page_load_time'] = df['timestamp'].where(df['action'] == 'page_load')
+df['page_load_time'] = df.groupby('user_id')['page_load_time'].ffill()
+
+# Keep only scroll_down events that have a valid page_load before them
+df = df[df['action'] == 'scroll_down']
+df = df[df['page_load_time'].notna()]
+
+# Calculate time difference in seconds
+df['time_diff_seconds'] = (
+    df['timestamp'] - df['page_load_time']
+).dt.total_seconds()
+
+# Get the minimum time difference per user
+df['min_time_diff'] = df.groupby('user_id')['time_diff_seconds'].transform('min')
+
+# Keep only the rows with the minimum time difference
+result = df[df['time_diff_seconds'] == df['min_time_diff']]
+
+# Final output
+result = result[['user_id', 'page_load_time', 'timestamp', 'time_diff_seconds']]
+result = result.rename(columns={'timestamp': 'scroll_down_time'})
+
+result
+
+learning - What ffill() means
+
+Forward fill:
+Carry the last non-null value downwards until a new value appears.
+
+Why this is powerful here
+This line answers:
+“What is the most recent page_load timestamp before this row?”
+-------------------------------------------------------------------------------------------------------
