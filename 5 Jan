@@ -1,0 +1,45 @@
+import pandas as pd
+
+# 1. Average points per country + winery
+values = (
+    winemag_p1
+    .groupby(['country', 'winery'])['points']
+    .mean()
+    .reset_index(name='avg_points')
+)
+
+# 2. Sort for tie-breaking (points desc, winery asc)
+values = values.sort_values(
+    ['country', 'avg_points', 'winery'],
+    ascending=[True, False, True]
+)
+
+# 3. Rank wineries per country
+values['rank'] = values.groupby('country').cumcount() + 1
+values
+
+# 4. Keep top 3 ranks
+values = values[values['rank'] <= 3]
+
+# 5. Format winery output
+values['formatted'] = (
+    values['winery'] + ' (' + values['avg_points'].round(2).astype(str) + ')'
+)
+
+# 6. Pivot ranks into columns
+result = (
+    values.pivot(index='country', columns='rank', values='formatted')
+    .reset_index()
+)
+
+# 7. Rename columns
+result.columns = ['country', 'best_winery', 'second_winery', 'third_winery']
+
+# 8. Fill missing values
+result['second_winery'] = result['second_winery'].fillna('No second winery')
+result['third_winery'] = result['third_winery'].fillna('No third winery')
+
+result
+
+learning - Whenever you pivot rank → column, you MUST guarantee uniqueness.
+cumcount()- One row per rank, INSTEAD OF DENSE RANK
