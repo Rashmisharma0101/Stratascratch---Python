@@ -27,5 +27,27 @@ f = values[(values['dayname'] == 'Monday') | (values['dayname'] == 'Sunday')]
 f = f[['weektag', 'dayname', 'percentage_sales']]
 result = f.pivot(index ='weektag', columns = 'dayname', values= 'percentage_sales').reset_index()
 result
+------------------------------------------------------------------------------------------------
+
+https://platform.stratascratch.com/coding/2111-sales-growth-per-territory?code_type=2
+learning -  Keep only territories with sales in both quarters - 3,4
+values = values.dropna(subset=[3, 4])
+
+full code
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+fct_customer_sales.head()
+df = fct_customer_sales.merge(map_customer_territory, on = 'cust_id', how = 'inner')
+df = (df[df['order_date'].dt.year == 2021])
+df['quarter'] = df['order_date'].dt.quarter
+df = df[(df['quarter'] == 3 ) | (df['quarter'] == 4 )]
+values = df.groupby(['territory_id', 'quarter'])['order_value'].sum().unstack().reset_index()
+values = values.dropna(subset=[3, 4])
+values['salesgrowth'] = ((values[4] - values[3])/values[3])*100
+values
+
 
 learning-  isocalender().week - assigns actual week number of the year (1-52)
