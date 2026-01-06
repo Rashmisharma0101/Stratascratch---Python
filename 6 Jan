@@ -1,0 +1,31 @@
+syntax for conditional counts
+
+results = (
+    f.assign(is_streamer=df['session_type'] == 'streamer')
+      .groupby('user_id')['is_streamer']
+      .sum().reset_index()
+)
+-------------------------------------------------------------------------------------------
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+early_sales.head()
+df = early_sales
+df['sales'] =  df['quantity'] * df['unitprice']
+values = df.groupby('invoicedate')['sales'].sum().reset_index(name = 'totalsales')
+values = values.sort_values(by = 'invoicedate')
+start_date = values['invoicedate'].min()
+values['weektag'] = values['invoicedate'].dt.isocalendar().week
+values
+values['dayname'] = values['invoicedate'].dt.day_name()
+values['weeknumber'] = values['invoicedate'].dt.weekday
+values['weeklysales'] = values.groupby('weektag')['totalsales'].transform('sum')
+values['percentage_sales'] = (values['totalsales'] / values['weeklysales']*100).round()
+f = values[(values['dayname'] == 'Monday') | (values['dayname'] == 'Sunday')]
+f = f[['weektag', 'dayname', 'percentage_sales']]
+result = f.pivot(index ='weektag', columns = 'dayname', values= 'percentage_sales').reset_index()
+result
+
+learning-  isocalender().week - assigns actual week number of the year (1-52)
