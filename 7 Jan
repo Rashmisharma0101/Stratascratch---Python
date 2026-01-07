@@ -1,0 +1,14 @@
+# 3 month rolling purchase amount
+learning - dateformat, rolling function
+df['year_month'] = df['created_at'].dt.strftime('%Y-%m')
+values = df.groupby('year_month')['purchase_amt'].sum().reset_index(name = 'total_revenue')
+values['rolling'] = values['total_revenue'].rolling(window =  3, min_periods=1).mean()
+
+# min_periods = 1 - to replace NAN with actual values as first two months wnt have real rolling values
+---------------------------------------------------------------------------------------------
+
+df['year_month'] = df['created_at'].dt.to_period('M')
+.to_period('M') can be used for year_month format
+ranks = df1.pivot(index= 'country', columns = 'year_month', values=  'rank').reset_index()
+to get ranks as values in columns dec 2019, jan 2020
+-------------------------------------------------------------------------------------------------
