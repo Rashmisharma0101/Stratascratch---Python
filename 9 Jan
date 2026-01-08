@@ -1,0 +1,3 @@
+f = values[values['totalviewtime'] > pd.Timedelta(seconds = 5)]
+learning - values greater than 5 seconds
+---------------------------------------------------------------------------------------------------
