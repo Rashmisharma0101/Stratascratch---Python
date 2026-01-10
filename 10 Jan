@@ -1,0 +1,9 @@
+df  = olympics_athletes_events[olympics_athletes_events['team'] == 'Norway']
+df_1994 = df[df['year'] == 1994]
+ath1994 = pd.Series(df_1994['name'].unique())
+df_1992 = df[df['year'] == 1992]
+ath1992 = pd.Series(df_1992['name'].unique())
+names =  ath1992[~ath1992.isin(ath1994)] 
+names
+
+learning- names =  ath1992[~ath1992.isin(ath1994)] , is present in Series A, not in series B
