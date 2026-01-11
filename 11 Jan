@@ -1,0 +1,34 @@
+df['first_name'] = df['name'].str.split(' ').str[0]
+df['length'] = df['first_name'].str.len()
+df['medal'] = df['medal'].fillna('No Medal')
+values = df.groupby(['length', 'medal']).size().unstack().reset_index()
+values
+
+learning - extract firstname from ful name, search first space
+
+--------------------------------------------------------------------------------
+EXPLODE FUCNTION
+
+The logical steps (no code explanation first)
+Each search → unique room types (you already did this)
+Turn:
+{'Entire home/apt', 'Private room'}
+into:
+Entire home/apt
+Private room
+as separate rows
+Count occurrences
+Sort descending
+What single pandas operation you now need
+
+👉 explode
+
+It:
+
+Takes list / set values
+Creates one row per element
+Now the minimal missing lines (only what you need)
+df = df.explode('filter_room_types')
+After this:
+Each row = one room type from one search
+No duplicates per search (because you used set)
