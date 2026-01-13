@@ -1,0 +1,49 @@
+import pandas as pd
+
+df = marketing_campaign.copy()
+
+# Step 1: First purchase date per user
+df['first_purchase'] = df.groupby('user_id')['created_at'].transform('min')
+
+# Step 2: Purchases AFTER campaign starts (strictly after first day)
+after_campaign = df[df['created_at'] > df['first_purchase']]
+
+# Step 3: Products bought on first day
+first_day_products = (
+    df[df['created_at'] == df['first_purchase']]
+    .groupby('user_id')['product_id']
+    .apply(set)
+    .reset_index(name='first_day_products')
+)
+
+# Step 4: Products bought after campaign
+later_products = (
+    after_campaign
+    .groupby('user_id')['product_id']
+    .apply(set)
+    .reset_index(name='later_products')
+)
+
+# Step 5: Merge and compare product sets
+merged = first_day_products.merge(later_products, on='user_id', how='inner')
+
+# Step 6: Users who bought NEW products after campaign
+successful_users = merged[
+    merged['later_products'] - merged['first_day_products'] != set()
+]
+
+# Final Answer
+successful_users['user_id'].nunique()
+
+learning  - .apply(set)
+explanation
+First-day purchases
+User 101 → ['A', 'B', 'B']
+apply(set) → {'A', 'B'}
+
+Later purchases
+User 101 → ['B', 'C']
+apply(set) → {'B', 'C'}
+
+Comparison
+{'B', 'C'} - {'A', 'B'} = {'C'}
