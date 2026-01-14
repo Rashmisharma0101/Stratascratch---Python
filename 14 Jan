@@ -1,0 +1,39 @@
+Write a query that returns a list of the bottom 2% revenue generating restaurants.
+Return a list of restaurant IDs
+and their total revenue from when customers placed orders in May 2020.
+You can calculate the total revenue by summing the order_total column. 
+And you should calculate the bottom 2% by partitioning the total revenue into evenly distributed buckets.
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+doordash_delivery.head()
+df = doordash_delivery
+df['year-month'] = df['customer_placed_order_datetime'].dt.to_period('M')
+df = df[df['year-month'] == '2020-05']
+values = df.groupby('restaurant_id')['order_total'].sum().reset_index(name = 'totalrevenue')
+values['bucket'] = pd.qcut(values['totalrevenue'], q =100, labels = False, duplicates='drop')
+values
+botom_2_percent = values[values['bucket']<2]
+botom_2_percent
+learning - buckets , But with duplicate values, some bin boundaries become identical, so use  duplicates='drop'
+------------------------------------------------------------------------------------------------------------------
+Find Yelp food reviews containing any of the keywords: 'food', 'pizza', 'sandwich', or 'burger
+mask = df['review_text'].str.contains(
+    'food|pizza|sandwich|burger',
+    case=False,
+    na=False
+)
+-------------------------------------------------------------------------------------------------------------
+pivot = df.pivot_table(
+    index='employeename',
+    columns='year',
+    values='totalpay',
+    aggfunc='max'
+).reset_index()
+
+learning- pivot table syntax
+
+-------------------------------------------------------------------------------------------------------------
+
