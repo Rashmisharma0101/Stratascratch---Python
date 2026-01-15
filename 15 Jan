@@ -1,0 +1,169 @@
+df['week'] = ((df['date'] - df['date'].dt.to_period('Y').dt.start_time).dt.days // 7) + 1
+df['quarter'] = ((df['week'] - 1)// 13) + 1
+learning - getting weeknumbers simply from 1 jan as 1, 2 etc, quarter is defined as first 13 weeks of year in question
+full explanation
+df['week'] = ((df['date'] - df['date'].dt.to_period('Y').dt.start_time).dt.days // 7) + 1
+
+df['week'] =
+
+We are creating a new column called week in the dataframe.
+
+df['date']
+
+This is your date column, e.g.
+
+2023-01-01
+2023-01-02
+2023-01-08
+
+.dt
+
+This tells pandas:
+
+“I want to use date-time operations on this column.”
+
+Without .dt, pandas cannot extract year, month, etc.
+
+.to_period('Y')
+
+This converts each date into a year period.
+
+Example:
+
+2023-05-10  →  2023
+2024-11-03  →  2024
+
+
+So now pandas knows:
+
+“This date belongs to this year.”
+
+.dt.start_time
+
+This gives the first moment of that year.
+
+Example:
+
+2023 → 2023-01-01 00:00:00
+2024 → 2024-01-01 00:00:00
+
+
+So for every date, we now have January 1st of that same year.
+
+df['date'] - Jan 1
+
+This subtracts:
+
+actual_date − Jan_1_of_that_year
+
+
+Result = time difference (called Timedelta).
+
+Examples:
+
+2023-01-01 − 2023-01-01 = 0 days
+2023-01-07 − 2023-01-01 = 6 days
+2023-01-08 − 2023-01-01 = 7 days
+
+.dt.days
+
+This converts the time difference into number of days.
+
+Example:
+
+0 days
+6 days
+7 days
+
+
+Now we have:
+
+“How many days have passed since Jan 1?”
+
+// 7
+
+This is integer division.
+
+It groups days into blocks of 7 days.
+
+Examples:
+
+0 // 7 = 0
+6 // 7 = 0
+7 // 7 = 1
+13 // 7 = 1
+14 // 7 = 2
+
+
+So:
+
+Days 0–6 → group 0
+
+Days 7–13 → group 1
+
+Days 14–20 → group 2
+
+Each group represents a week.
+
++ 1
+
+Because week numbers should start from 1, not 0.
+
+Final result:
+
+Days 0–6   → Week 1
+Days 7–13  → Week 2
+Days 14–20 → Week 3
+
+
+✅ This gives simple, business-friendly week numbers starting from Jan 1.
+
+Line 2
+df['quarter'] = ((df['week'] - 1)// 13) + 1
+
+
+Now we convert weeks → quarters.
+
+df['week'] - 1
+
+Why subtract 1?
+
+Because integer division works best from 0.
+
+Example:
+
+Week 1  →  0
+Week 13 → 12
+Week 14 → 13
+
+// 13
+
+Each quarter has 13 weeks.
+
+Examples:
+
+0  // 13 = 0   (weeks 1–13)
+12 // 13 = 0
+13 // 13 = 1   (weeks 14–26)
+
+
+So:
+
+Weeks 1–13 → group 0
+
+Weeks 14–26 → group 1
+
+Weeks 27–39 → group 2
+
+Weeks 40–53 → group 3
+
++ 1
+
+Convert quarter numbering to human-readable form:
+
+0 → Q1
+1 → Q2
+2 → Q3
+3 → Q4
+
+---------------------------------------------------------------------------------------------------------
