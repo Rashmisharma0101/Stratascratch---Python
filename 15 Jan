@@ -167,3 +167,89 @@ Convert quarter numbering to human-readable form:
 3 → Q4
 
 ---------------------------------------------------------------------------------------------------------
+gaps and island
+https://platform.stratascratch.com/coding/10550-five-year-sales-growth-regions?code_type=2
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+regional_sales.head()
+import pandas as pd
+
+# Assume your dataframe is called regional_sales
+df = regional_sales.copy()
+
+# Step 1: Sort by region and year
+df = df.sort_values(by=['region_name', 'year'])
+
+# Step 2: Previous year sales
+df['prev_sales'] = df.groupby('region_name')['sales'].shift(1)
+df['prev_year'] = df.groupby('region_name')['year'].shift(1)
+
+# Step 3: Check year-over-year growth and consecutive years
+df['valid_growth'] = ((df['sales'] > df['prev_sales']) & (df['year'] - df['prev_year'] == 1)).astype(int)
+
+# Step 4: Create streak groups for uninterrupted growth
+df['streak_group'] = df.groupby('region_name')['valid_growth'].transform(lambda x: (x == 0).cumsum())
+
+# Step 5: Count the length of each growth streak and record starting year
+streaks = (
+    df[df['valid_growth'] == 1]
+    .groupby(['region_name', 'streak_group'])
+    .agg(
+        streak_len=('year', 'count'),
+        start_year=('year', 'min')
+    )
+    .reset_index()
+)
+
+# Step 6: Keep only streaks of length >= 5
+result = streaks[streaks['streak_len'] >= 5][['region_name', 'start_year']]
+
+# Show the result
+result
+
+Alternate - use rolling windows
+
+import pandas as pd
+
+df = regional_sales.copy()
+
+# Sort by region and year
+df = df.sort_values(['region_name', 'year'])
+
+# Compute year-over-year sales increase (1 if sales increased, else 0)
+df['growth'] = df.groupby('region_name')['sales'].diff() > 0
+
+# Convert boolean to int
+df['growth'] = df['growth'].astype(int)
+
+# Use a rolling window of size 5 per region to check 5 consecutive growths
+result = (
+    df.groupby('region_name')
+      .apply(lambda x: x.rolling(5, on='year')['growth'].sum())
+      .reset_index()
+)
+
+# Keep only windows where sum == 5 (5 consecutive growths)
+five_year_streaks = result[result['growth'] == 5]
+
+# Get region name and starting year
+final_result = five_year_streaks[['region_name', 'year']].rename(columns={'year': 'start_year'}).reset_index(drop=True)
+
+final_result
+-------------------------------------------------------------------
+
+df.groupby('promotion_id').agg(firstdaypercentage = ('tag_first_date', 'mean'),
+lastdaypercentage = ('tag_last_date', 'mean')
+
+to calculate percenatage
+can use lambda function here
+
+df.groupby('promotion_id').agg(
+    firstdaypercentage=('tag_first_date', lambda x: x.mean()*100),
+    lastdaypercentage=('tag_last_date', lambda x: x.mean()*100)
+).reset_index()
+
+-------------------------------------------------------------------
+
